@@ -1,8 +1,7 @@
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import { auth } from '../Firebase'
-import { createUserWithEmailAndPassword } from 'firebase/auth'
-import { signInWithEmailAndPassword } from 'firebase/auth'
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
 
 const LoginScreen = () => {
     const [email, setEmail] = useState()
@@ -13,6 +12,15 @@ const LoginScreen = () => {
         .then((userCredentials) => {
             const user = userCredentials.user
             console.log("Successfully registered user:", user.email)
+        })
+        .catch(error => console.log(error.message))
+    }
+
+    const handleLogin = () => {
+        signInWithEmailAndPassword(auth, email, password)
+        .then((userCredentials) => {
+            const user = userCredentials.user
+            console.log("Successfully logged in user:", user.email)
         })
         .catch(error => console.log(error.message))
     }
@@ -34,7 +42,9 @@ const LoginScreen = () => {
                     secureTextEntry />
             </View>
             <View style={styles.buttonWrapper}> 
-                <TouchableOpacity style={styles.button}>
+                <TouchableOpacity 
+                    style={styles.button}
+                    onPress={handleLogin}>
                     <Text style={styles.buttonText}>Login</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
