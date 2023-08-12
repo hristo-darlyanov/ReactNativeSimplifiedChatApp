@@ -10,27 +10,35 @@ import HomeScreen from './screens/HomeScreen';
 import { ActivityIndicator } from 'react-native';
 
 const Stack = createNativeStackNavigator();
+const AuthenticatedUserContext = createContext()
+const AuthenticatedUserProvider = ({ children }) => {
+  const [user, setUser] = useState(null)
+  return (
+    <AuthenticatedUserContext.Provider value={{ user, setUser }}>
+      {children}
+    </AuthenticatedUserContext.Provider>
+  )
+}
 
 function AuthStack() {
   return (
-  <Stack.Navigator>
-    <Stack.Screen options={{ headerShown: false }} name="LoginScreen" component={LoginScreen} />
-  </Stack.Navigator>)
+    <Stack.Navigator>
+      <Stack.Screen options={{ headerShown: false }} name="LoginScreen" component={LoginScreen} />
+    </Stack.Navigator>)
 }
 
 function MainStack() {
   return (
     <Stack.Navigator>
-    <Stack.Screen name="HomeScreen" component={HomeScreen} />
-  </Stack.Navigator>)
+      <Stack.Screen name="HomeScreen" component={HomeScreen} />
+    </Stack.Navigator>)
 }
 
 function RootNavigation() {
-  const [user, setUser] = useState(null);
+  const { user, setUser } = useContext(AuthenticatedUserContext);
   const [loading, setLoading] = useState(true)
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async userSignedIn => {
-      print(true)
       if (userSignedIn) {
         setUser(userSignedIn)
       } else {
@@ -39,25 +47,27 @@ function RootNavigation() {
       setLoading(false)
     })
 
-    return unsubscribe()
+    return () => unsubscribe()
   }, [user])
   if (loading) {
     return (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        <ActivityIndicator size="large"/>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" />
       </View>
     )
   }
   return (
     <NavigationContainer>
-      {user ? <MainStack/> : <AuthStack/>}
+      {user ? <MainStack /> : <AuthStack />}
     </NavigationContainer>
   )
 }
 
 export default function App() {
   return (
+    <AuthenticatedUserProvider>
       <RootNavigation />
+    </AuthenticatedUserProvider>
   );
 }
 

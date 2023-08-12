@@ -8,16 +8,6 @@ const LoginScreen = ({navigation}) => {
     const [email, setEmail] = useState()
     const [password, setPassword] = useState()
 
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, user => {
-            if (user) {
-                navigation.replace('HomeScreen')
-            }
-        })
-
-        return unsubscribe
-    })
-
     const handleRegister = () => {
         createUserWithEmailAndPassword(auth, email, password)
         .then((userCredentials) => {
