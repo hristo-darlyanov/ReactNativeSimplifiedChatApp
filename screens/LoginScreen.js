@@ -1,11 +1,22 @@
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { auth } from '../Firebase'
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
+import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth'
+import { useNavigation } from '@react-navigation/native'
 
-const LoginScreen = () => {
+const LoginScreen = ({navigation}) => {
     const [email, setEmail] = useState()
     const [password, setPassword] = useState()
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, user => {
+            if (user) {
+                navigation.replace('HomeScreen')
+            }
+        })
+
+        return unsubscribe
+    })
 
     const handleRegister = () => {
         createUserWithEmailAndPassword(auth, email, password)
@@ -63,7 +74,8 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        backgroundColor: '#2e2e2e'
     },
     inputWrapper: {
         width: '70%'
@@ -97,6 +109,7 @@ const styles = StyleSheet.create({
     titleText: {
         fontSize: 30,
         paddingBottom: 40,
-        fontWeight: 'bold'
+        fontWeight: 'bold',
+        color: 'white'
     }
 })
