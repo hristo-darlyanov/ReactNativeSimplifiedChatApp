@@ -9,18 +9,16 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 const HomeScreen = ({ navigation }) => {
   const [messages, setMessages] = useState([])
   useLayoutEffect(() => {
-    const getMessages = async () => {
-      const q = await getDocs(collection(db, "chats"), orderBy('createdAt'));
+      const q = query(collection(db, "chats"), orderBy('createdAt'));
 
-      setMessages(q.docs.map(item => ({
+      const snapShotUnsubscribe = onSnapshot(q, updatedQuery => {
+        setMessages(updatedQuery.docs.map(item => ({
         _id: item.data()._id,
-        createdAt: item.data().createdAt.toDate(),
+        createdAt: item.data().createdAt.toDate(), 
         text: item.data().text,
         user: item.data().user
-      })))
-      console.log(messages)
-    }
-    return () => getMessages()
+      })))})
+    return snapShotUnsubscribe
   }, [])
 
   const onSend = useCallback((messages = []) => {
@@ -38,7 +36,7 @@ const HomeScreen = ({ navigation }) => {
       })
     }
 
-    return addMessageToDB()
+    return addMessageToDB() //
   }, [])
 
   const handleSignOut = () => {
@@ -64,7 +62,8 @@ const HomeScreen = ({ navigation }) => {
             avatar: 'https://i.pravatar.cc/300'
           }}
           messageContainerStyle={{ backgroundColor: 'white' }}
-          onSend={onSend} />
+          onSend={messages => onSend(messages)} 
+          inverted={false}/>
       </SafeAreaView>
     </View>
   )
